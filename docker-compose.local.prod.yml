@@ -1,0 +1,38 @@
+services:
+  app_playce:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: no
+    container_name: app_playce
+    networks:
+      - proxy
+
+  nginx_playce:
+    restart: no
+    ports:
+      - "80:80"
+    container_name: nginx_playce
+    networks:
+      - proxy
+
+  mysql:
+    image: 'mysql:8.0'
+    container_name: mysql_playce
+    environment:
+      MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
+      MYSQL_DATABASE: '${DB_DATABASE}'
+      MYSQL_USER: '${DB_USERNAME}'
+      MYSQL_PASSWORD: '${DB_PASSWORD}'
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true
