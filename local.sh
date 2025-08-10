@@ -1,12 +1,14 @@
 #!/bin/bash
 set -e
 
+# shellcheck disable=SC2155
+export HOST_UID=$(id -u)
+# shellcheck disable=SC2155
+export HOST_GID=$(id -g)
+
 docker compose -f docker-compose.prod.yml -f docker-compose.local.prod.yml down -v
 
 docker compose -f docker-compose.prod.yml -f docker-compose.local.prod.yml up -d --build
-
-docker compose -f docker-compose.prod.yml -f docker-compose.local.prod.yml \
-    exec app_playce chown -R www-data:www-data storage bootstrap/cache
 
 echo "Waiting for the database to be healthy..."
 
