@@ -19,7 +19,7 @@ To ensure that changes to the `Dockerfile`, `docker-compose.*.yml`, or other inf
     ```
 2.  To build, start, and initialize the entire environment, run a single command in your terminal:
     ```bash
-    ./local.sh
+    bash local.sh up
     ```
 3.  The script will:
     * Stop and remove any old containers. 
@@ -32,5 +32,5 @@ To ensure that changes to the `Dockerfile`, `docker-compose.*.yml`, or other inf
 ### Shutting Down the Environment
 To stop and remove the containers and volumes, use the following command:
 ```bash
-docker compose -f docker-compose.prod.yml -f docker-compose.local.prod.yml down -v
+bash local.sh down
 ```

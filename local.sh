@@ -6,17 +6,34 @@ export HOST_UID=$(id -u)
 # shellcheck disable=SC2155
 export HOST_GID=$(id -g)
 
-docker compose -f docker-compose.prod.yml -f docker-compose.local.prod.yml down -v
+COMMAND=${1:-up}
 
-docker compose -f docker-compose.prod.yml -f docker-compose.local.prod.yml up -d --build
+DC="docker compose -f docker-compose.prod.yml -f docker-compose.local.prod.yml"
 
-echo "Waiting for the database to be healthy..."
+if [ "$COMMAND" = "down" ]; then
+    echo "==> Stopping and removing containers and volumes..."
+    $DC down -v
+    echo "==> Local environment stopped."
 
-# shellcheck disable=SC1083
-while [ "$(docker inspect -f {{.State.Health.Status}} mysql_playce)" != "healthy" ]; do
-    echo -n "."
-    sleep 3
-done
+elif [ "$COMMAND" = "up" ]; then
+    echo "==> Starting local environment (this may take a while on the first run)..."
+    $DC down -v
+    $DC up -d --build
 
-docker compose -f docker-compose.prod.yml -f docker-compose.local.prod.yml \
-    exec app_playce php artisan migrate
+    echo "==> Waiting for the database to be ready..."
+    # shellcheck disable=SC1083
+    while [ "$(docker inspect -f {{.State.Health.Status}} mysql_playce)" != "healthy" ]; do
+        echo -n "."
+        sleep 3
+    done
+    echo
+
+    echo "==> Running migrations..."
+    $DC exec app_playce php artisan migrate --force
+    echo "==> Local environment is ready at http://localhost"
+
+else
+    echo "Unknown command: $COMMAND"
+    echo "Usage: ./local.sh [up|down]"
+    exit 1
+fi
