@@ -23,9 +23,6 @@ RUN composer install --no-interaction --no-scripts --no-dev --optimize-autoloade
 
 COPY . .
 
-RUN php artisan route:cache && \
-    php artisan view:cache
-
 FROM node:20-alpine AS asset_builder
 
 WORKDIR /app
