@@ -38,7 +38,15 @@ RUN npm run build
 
 FROM php:8.4-fpm-alpine
 
+ARG UID=1000
+ARG GID=1000
+
 WORKDIR /var/www
+
+RUN deluser www-data && \
+    if [ $(getent group $GID) ]; then groupdel $(getent group $GID | cut -d: -f1); fi && \
+    addgroup -g $GID www-data && \
+    adduser -D -u $UID -G www-data -s /bin/sh www-data
 
 RUN apk add --no-cache --update \
     $PHPIZE_DEPS \

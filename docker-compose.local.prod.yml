@@ -3,6 +3,10 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - UID=${HOST_UID}
+        - GID=${HOST_GID}
+    user: "${HOST_UID}:${HOST_GID}"
     restart: no
     container_name: app_playce
     networks:
