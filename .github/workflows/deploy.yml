@@ -40,6 +40,11 @@ jobs:
             echo "==> Running database migrations..."
             docker compose -f docker-compose.prod.yml exec app_playce php artisan migrate --force
 
+            echo "==> Setting cache..."
+            docker compose -f docker-compose.prod.yml exec app_playce php artisan view:cache
+            docker compose -f docker-compose.prod.yml exec app_playce php artisan route:cache
+            docker compose -f docker-compose.prod.yml exec app_playce php artisan config:cache
+
             echo "==> Cleaning up unused Docker resources..."
             docker image prune -af
             docker container prune -f
