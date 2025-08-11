@@ -3,7 +3,8 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\CustomResetPasswordNotification;
+use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
 use Livewire\Volt\Volt;
@@ -22,6 +23,9 @@ class PasswordResetTest extends TestCase
             ->assertStatus(200);
     }
 
+    /**
+     * @throws Exception
+     */
     public function test_reset_password_link_can_be_requested(): void
     {
         Notification::fake();
@@ -32,9 +36,12 @@ class PasswordResetTest extends TestCase
             ->set('email', $user->email)
             ->call('sendPasswordResetLink');
 
-        Notification::assertSentTo($user, ResetPassword::class);
+        Notification::assertSentTo($user, CustomResetPasswordNotification::class);
     }
 
+    /**
+     * @throws Exception
+     */
     public function test_reset_password_screen_can_be_rendered(): void
     {
         Notification::fake();
@@ -45,7 +52,7 @@ class PasswordResetTest extends TestCase
             ->set('email', $user->email)
             ->call('sendPasswordResetLink');
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) {
+        Notification::assertSentTo($user, CustomResetPasswordNotification::class, function ($notification) {
             $response = $this->get('/reset-password/'.$notification->token);
 
             $response
@@ -56,6 +63,9 @@ class PasswordResetTest extends TestCase
         });
     }
 
+    /**
+     * @throws Exception
+     */
     public function test_password_can_be_reset_with_valid_token(): void
     {
         Notification::fake();
@@ -66,7 +76,7 @@ class PasswordResetTest extends TestCase
             ->set('email', $user->email)
             ->call('sendPasswordResetLink');
 
-        Notification::assertSentTo($user, ResetPassword::class, function ($notification) use ($user) {
+        Notification::assertSentTo($user, CustomResetPasswordNotification::class, function ($notification) use ($user) {
             $component = Volt::test('pages.auth.reset-password', ['token' => $notification->token])
                 ->set('email', $user->email)
                 ->set('password', 'password')
