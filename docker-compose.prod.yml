@@ -10,6 +10,18 @@ services:
     networks:
       - proxy
 
+  worker_playce:
+    image: ghcr.io/devc4rlos/playce:latest
+    container_name: worker_playce
+    restart: unless-stopped
+    volumes:
+      - ./.env:/var/www/.env
+      - ./storage:/var/www/storage
+      - app_files:/var/www
+    networks:
+      - proxy
+    command: php artisan queue:work --sleep=3 --tries=3
+
   nginx_playce:
     image: nginx:stable-alpine
     container_name: nginx_playce

@@ -18,7 +18,8 @@ if [ "$COMMAND" = "down" ]; then
 elif [ "$COMMAND" = "up" ]; then
     echo "==> Starting local environment (this may take a while on the first run)..."
     $DC down -v
-    $DC up -d --build
+
+    $DC up -d --build mysql nginx_playce app_playce
 
     echo "==> Waiting for the database to be ready..."
     # shellcheck disable=SC1083
@@ -30,6 +31,10 @@ elif [ "$COMMAND" = "up" ]; then
 
     echo "==> Running migrations..."
     $DC exec app_playce php artisan migrate --force
+
+    echo "==> Starting the worker..."
+    $DC up -d --build worker_playce
+
     echo "==> Local environment is ready at http://localhost"
 
 else
